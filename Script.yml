@@ -1,0 +1,1 @@
+ssh-keygen -t rsa -b 4096 -f C:\VSC\Brief-10\ssh\keytest
