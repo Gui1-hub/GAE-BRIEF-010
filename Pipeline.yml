@@ -1,0 +1,39 @@
+# Déclencheur automatique sur la branche main
+trigger:
+  branches:
+    include:
+      - main
+
+# Pool d'agents
+pool:
+  vmImage: 'ubuntu-latest'
+
+# Variables
+variables:
+  TF_VERSION: '1.9.8'
+  WORKING_DIRECTORY: './terraform'
+
+# Étapes de la pipeline
+steps:
+  # 1. Installer Terraform
+  - task: UseTerraform@0
+    inputs:
+      terraformVersion: $(TF_VERSION)
+
+  # 2. Initialiser Terraform
+  - script: |
+      terraform init
+    displayName: 'Initialiser Terraform'
+    workingDirectory: $(WORKING_DIRECTORY)
+
+  # 3. Planifier la création de l’infrastructure
+  - script: |
+      terraform plan -out=tfplan
+    displayName: 'Planifier la création de l’infrastructure'
+    workingDirectory: $(WORKING_DIRECTORY)
+
+  # 4. Appliquer les changements
+  - script: |
+      terraform apply -auto-approve tfplan
+    displayName: 'Créer la VM avec Terraform'
+    workingDirectory: $(WORKING_DIRECTORY)
