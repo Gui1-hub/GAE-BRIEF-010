@@ -58,3 +58,4 @@ steps:
       publishLocation: 'Container'
     displayName: 'Publish Terraform Artifacts'
 zizizizizi
+bexfd
