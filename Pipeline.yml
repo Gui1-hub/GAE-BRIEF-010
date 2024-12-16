@@ -15,10 +15,12 @@ steps:
   - task: Checkout@1  # Cette tâche extrait votre code depuis le dépôt GitHub
     displayName: 'Checkout code'
 
-  # Étape 2 : Installer Terraform
-  - task: UseTerraform@0  # Installe Terraform sur la machine virtuelle
-    inputs:
-      terraformVersion: $(terraformVersion)
+  # Étape 2 : Installer Terraform manuellement
+  - script: |
+      curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+      sudo apt-add-repository "deb https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+      sudo apt-get update
+      sudo apt-get install terraform=$(terraformVersion)
     displayName: 'Install Terraform'
 
   # Étape 3 : Initialiser Terraform
