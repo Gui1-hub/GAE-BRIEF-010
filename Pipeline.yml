@@ -57,5 +57,3 @@ steps:
       ArtifactName: 'terraform-artifacts'
       publishLocation: 'Container'
     displayName: 'Publish Terraform Artifacts'
-zizizizizi
-bexfd
