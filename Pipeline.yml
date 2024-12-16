@@ -12,7 +12,7 @@ variables:
 steps:
 
   # Étape 1 : Cloner le dépôt GitHub
-  - task: Checkout@1  # Cette tâche extrait votre code depuis le dépôt GitHub
+  - checkout: self  # Syntaxe simplifiée pour le checkout
     displayName: 'Checkout code'
 
   # Étape 2 : Installer Terraform manuellement
@@ -20,22 +20,37 @@ steps:
       curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
       sudo apt-add-repository "deb https://apt.releases.hashicorp.com $(lsb_release -cs) main"
       sudo apt-get update
-      sudo apt-get install terraform=$(terraformVersion)
+      sudo apt-get install terraform="$(terraformVersion)"
     displayName: 'Install Terraform'
 
-  # Étape 3 : Initialiser Terraform
-  - script: terraform init  # Initialisation de Terraform dans le répertoire du dépôt
+  # Étape 3 : Vérifier le contenu du répertoire
+  - script: |
+      echo "Checking Build.ArtifactStagingDirectory content"
+      ls -la $(Build.ArtifactStagingDirectory)
+    displayName: 'Debug Artifact Directory'
+
+  # Étape 4 : Initialiser Terraform
+  - script: |
+      terraform init || exit 1
     displayName: 'Initialize Terraform'
 
-  # Étape 4 : Vérifier le plan Terraform
-  - script: terraform plan -out=tfplan  # Crée un plan d'exécution pour la création de la VM
+  # Étape 5 : Vérifier le plan Terraform
+  - script: |
+      terraform plan -out=tfplan || exit 1
     displayName: 'Terraform Plan'
 
-  # Étape 5 : Appliquer le plan Terraform pour créer la VM
-  - script: terraform apply -auto-approve tfplan  # Applique le plan pour créer la VM
+  # Étape 6 : Appliquer le plan Terraform
+  - script: |
+      terraform apply -auto-approve tfplan || exit 1
     displayName: 'Terraform Apply'
 
-  # Étape 6 : Optionnel - Publier des artefacts
+  # Étape 7 : Vérifier le contenu des artefacts avant publication
+  - script: |
+      echo "Checking for Terraform artifacts"
+      ls -la $(Build.ArtifactStagingDirectory)
+    displayName: 'Check Artifacts'
+
+  # Étape 8 : Optionnel - Publier des artefacts
   - task: PublishBuildArtifacts@1  # Publier des artefacts de build, si nécessaire
     inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)'
