@@ -1,39 +1,42 @@
-# Déclencheur automatique sur la branche main
 trigger:
   branches:
     include:
-      - main
+      - main  # Déclenche la pipeline pour les commits dans la branche 'main'
 
-# Pool d'agents
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'ubuntu-latest'  # Utilisation d'une machine virtuelle Ubuntu
 
-# Variables
 variables:
-  TF_VERSION: '1.9.8'
-  WORKING_DIRECTORY: './terraform'
+  terraformVersion: '1.9.8'  # Version de Terraform
 
-# Étapes de la pipeline
 steps:
-  # 1. Installer Terraform
-  - task: UseTerraform@0
+
+  # Étape 1 : Cloner le dépôt GitHub
+  - task: Checkout@1  # Cette tâche extrait votre code depuis le dépôt GitHub
+    displayName: 'Checkout code'
+
+  # Étape 2 : Installer Terraform
+  - task: UseTerraform@0  # Installe Terraform sur la machine virtuelle
     inputs:
-      terraformVersion: $(TF_VERSION)
+      terraformVersion: $(terraformVersion)
+    displayName: 'Install Terraform'
 
-  # 2. Initialiser Terraform
-  - script: |
-      terraform init
-    displayName: 'Initialiser Terraform'
-    workingDirectory: $(WORKING_DIRECTORY)
+  # Étape 3 : Initialiser Terraform
+  - script: terraform init  # Initialisation de Terraform dans le répertoire du dépôt
+    displayName: 'Initialize Terraform'
 
-  # 3. Planifier la création de l’infrastructure
-  - script: |
-      terraform plan -out=tfplan
-    displayName: 'Planifier la création de l’infrastructure'
-    workingDirectory: $(WORKING_DIRECTORY)
+  # Étape 4 : Vérifier le plan Terraform
+  - script: terraform plan -out=tfplan  # Crée un plan d'exécution pour la création de la VM
+    displayName: 'Terraform Plan'
 
-  # 4. Appliquer les changements
-  - script: |
-      terraform apply -auto-approve tfplan
-    displayName: 'Créer la VM avec Terraform'
-    workingDirectory: $(WORKING_DIRECTORY)
+  # Étape 5 : Appliquer le plan Terraform pour créer la VM
+  - script: terraform apply -auto-approve tfplan  # Applique le plan pour créer la VM
+    displayName: 'Terraform Apply'
+
+  # Étape 6 : Optionnel - Publier des artefacts
+  - task: PublishBuildArtifacts@1  # Publier des artefacts de build, si nécessaire
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      ArtifactName: 'terraform-artifacts'
+      publishLocation: 'Container'
+    displayName: 'Publish Terraform Artifacts'
