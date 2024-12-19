@@ -29,11 +29,3 @@ steps:
       echo "Checking for Terraform artifacts"
       ls -la $(Build.ArtifactStagingDirectory)
     displayName: 'Check Artifacts'
-
-  # Étape 8 : Optionnel - Publier des artefacts
-  - task: PublishBuildArtifacts@1  # Publier des artefacts de build, si nécessaire
-    inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      ArtifactName: 'terraform-artifacts'
-      publishLocation: 'Container'
-    displayName: 'Publish Terraform Artifacts'
