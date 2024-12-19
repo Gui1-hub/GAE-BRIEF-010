@@ -14,25 +14,6 @@ steps:
   - checkout: self  # Syntaxe simplifiée pour le checkout
     displayName: 'Checkout code'
 
-  # Étape 2 : Installer Terraform manuellement
-  - script: |
-      curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-      sudo apt-add-repository "deb https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-      sudo apt-get update
-      sudo apt-get install terraform="$(terraformVersion)"
-    displayName: 'Install Terraform'
-
-  # Étape 3 : Vérifier le contenu du répertoire
-  - script: |
-      echo "Checking Build.ArtifactStagingDirectory content"
-      ls -la $(Build.ArtifactStagingDirectory)
-    displayName: 'Debug Artifact Directory'
-
-  # Étape 4 : Initialiser Terraform
-  - script: |
-      terraform init || exit 1
-    displayName: 'Initialize Terraform'
-
   # Étape 5 : Vérifier le plan Terraform
   - script: |
       terraform plan -out=tfplan || exit 1
