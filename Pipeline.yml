@@ -3,8 +3,7 @@ trigger:
     include:
       - main  # Déclenche la pipeline pour les commits dans la branche 'main'
 
-pool:
-  vmImage: 'ubuntu-latest'  # Utilisation d'une machine virtuelle Ubuntu
+pool: Pooltest
 
 variables:
   terraformVersion: '1.9.8'  # Version de Terraform
