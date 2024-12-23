@@ -97,9 +97,8 @@ resource "local_file" "public_key" {
 # Assurez-vous de donner les bonnes permissions pour la clé privée sur Windows
 resource "null_resource" "set_permissions" {
   provisioner "local-exec" {
-    command = "icacls 'C:/VSC/Brief-10/SSH/id_rsa' /inheritance:r /grant:r 'Everyone:(R)'"
+    command = "icacls \"C:/VSC/Brief-10/SSH/id_rsa\" /inheritance:r /grant:r \"%username%:(R)\""
   }
-  depends_on = [local_file.private_key]
 }
 
 # Machine virtuelle Ubuntu
