@@ -82,14 +82,16 @@ resource "tls_private_key" "example" {
   rsa_bits  = 4096
 }
 
-# Écriture de la clé privée et publique dans des fichiers locaux
+# Écriture de la clé privée dans un fichier
 resource "local_file" "private_key" {
-  filename = "C:/VSC/Brief-10/SSH/id_rsa.pub"
+  filename = "C:/VSC/Brief-10/SSH/id_rsa"  # Fichier pour la clé privée
   content  = tls_private_key.example.private_key_pem
+  # Assurez-vous de donner les bonnes permissions pour la clé privée
 }
 
+# Écriture de la clé publique dans un fichier
 resource "local_file" "public_key" {
-  filename = "C:/VSC/Brief-10/SSH/id_rsa.pub"
+  filename = "C:/VSC/Brief-10/SSH/id_rsa.pub"  # Fichier pour la clé publique
   content  = tls_private_key.example.public_key_openssh
 }
 
