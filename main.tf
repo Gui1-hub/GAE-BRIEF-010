@@ -4,6 +4,9 @@ provider "azurerm" {
   subscription_id = "09eef35c-bc62-40ab-8932-c171977b897b"
 }
 
+# Provider TLS pour générer la clé SSH
+provider "tls" {}
+
 # Groupe de ressources
 resource "azurerm_resource_group" "resource_group" {
   name     = "GAE-TEST-RG"
@@ -73,12 +76,29 @@ resource "azurerm_network_interface" "network_interface" {
   }
 }
 
+# Génération de la clé privée et publique SSH
+resource "tls_private_key" "example" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+# Écriture de la clé privée et publique dans des fichiers locaux
+resource "local_file" "private_key" {
+  filename = "C:/VSC/Brief-10/SSH/id_rsa.pub"
+  content  = tls_private_key.example.private_key_pem
+}
+
+resource "local_file" "public_key" {
+  filename = "C:/VSC/Brief-10/SSH/id_rsa.pub"
+  content  = tls_private_key.example.public_key_openssh
+}
+
 # Machine virtuelle Ubuntu
 resource "azurerm_linux_virtual_machine" "virtual_machine" {
   name                = "GAE-TEST-ubuntu-vm"
   resource_group_name = azurerm_resource_group.resource_group.name
   location            = azurerm_resource_group.resource_group.location
-  size                = "Standard_B4ls_v2"
+  size                = "Standard_B2s"
   admin_username      = "adminsimplon"
   admin_password      = "P@ssw0rd123!"
   network_interface_ids = [
@@ -88,7 +108,7 @@ resource "azurerm_linux_virtual_machine" "virtual_machine" {
   # Clé SSH pour l'authentification
   admin_ssh_key {
     username   = "adminsimplon"
-    public_key = file("C:/VSC/Brief-10/ssh/mykey.pub") # Chargez votre clé publique ici
+    public_key = local_file.public_key.content  # Utilisation de la clé publique générée
   }
 
   os_disk {

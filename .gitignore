@@ -1,3 +1,5 @@
+.terraform.lick.hcl
+.terraform.tfstate.lock.info
 .terraform*
 Bastri.py
 Script.yml
