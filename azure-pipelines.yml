@@ -27,7 +27,7 @@ steps:
   - script: |
       sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r .tag_name)/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
       sudo chmod +x /usr/local/bin/docker-compose
-      docker-compose --version
+      docker compose --version
     displayName: 'Install Docker Compose'
 
   # Step 4: Clone the Git repository containing the docker-compose.yml file
@@ -40,11 +40,11 @@ steps:
   # Step 5: Build Docker images with Docker Compose
   - script: |
       cd Docker-Pipeline
-      docker-compose -f docker-compose.yml build
+      docker compose -f docker-compose.yml build
     displayName: 'Build Docker images from docker-compose.yml'
 
   # Step 6: Deploy the services using Docker Compose
   - script: |
       cd Docker-Pipeline
-      docker-compose -f docker-compose.yml up -d
+      docker compose -f docker-compose.yml up -d
     displayName: 'Deploy services using Docker Compose'
