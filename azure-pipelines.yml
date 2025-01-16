@@ -1,7 +1,8 @@
 trigger:
 - main
 
-pool:
+pool: 
+  name: Ubuntu-VM TEST
   vmImage: ubuntu-latest
 
 steps:
