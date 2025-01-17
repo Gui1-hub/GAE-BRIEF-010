@@ -1,19 +1,21 @@
+# Se déclenche lorsqu'un code est poussé sur la branche main
 trigger:
 - main
 
+# Spécifie sur quel pool d'agents la pipeline doit s'exécuter
 pool: 
   name: Ubuntu-VM TEST
   vmImage: ubuntu-latest
 
 steps:
-  # Step 1: Update the system and install essential dependencies
+  # Etape 1: Met à jour la VM Ubuntu et ses dépendances
   - script: |
       sudo apt-get update
       sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common git
       echo "System updated and essential dependencies installed."
     displayName: 'Update System and Install Dependencies'
 
-  # Step 2: Install Docker
+  # Etape 2: Installe Docker
   - script: |
       curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
       echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
@@ -23,27 +25,27 @@ steps:
       sudo systemctl start docker
     displayName: 'Install Docker'
 
-  # Step 3: Install Docker Compose
+  # Etape 3: Installe Docker Compose
   - script: |
       sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r .tag_name)/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
       sudo chmod +x /usr/local/bin/docker-compose
       docker compose --version
     displayName: 'Install Docker Compose'
 
-  # Step 4: Clone the Git repository containing the docker-compose.yml file
+  # Etape 4: Clone le repos Git qui contient le fichier docker-compose.yml
   - script: |
       git clone git@github.com:Gui1-hub/Docker-Pipeline.git
       cd Docker-Pipeline
       echo "Repository cloned successfully."
     displayName: 'Clone Git Repository'
 
-  # Step 5: Build Docker images with Docker Compose
+  # Etape 5: Build les images Docker avec Docker-Compose
   - script: |
       cd Docker-Pipeline
       docker compose -f docker-compose.yml build
     displayName: 'Build Docker images from docker-compose.yml'
 
-  # Step 6: Deploy the services using Docker Compose
+  # Etape 6: Deploie les services en utilisant Docker-Compose
   - script: |
       cd Docker-Pipeline
       sudo docker compose -f docker-compose.yml up -d
