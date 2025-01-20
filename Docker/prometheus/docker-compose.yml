@@ -1,0 +1,85 @@
+services:
+    wordpress:
+      image: wordpress:latest
+      container_name: wordpress
+      ports:
+        - "8080:80" # Accessible depuis le réseau local à http://<IP_serveur>:8080
+      environment:
+        WORDPRESS_DB_HOST: db
+        WORDPRESS_DB_USER: wordpress_user
+        WORDPRESS_DB_PASSWORD: wordpress_password
+        WORDPRESS_DB_NAME: wordpress_db
+      depends_on:
+        - db 
+      networks:
+        - training_network
+      volumes:
+        - wordpress_data:/var/www/html
+
+    db:
+      image: mysql:latest
+      container_name: wordpress_db
+      environment:
+        MYSQL_ROOT_PASSWORD: root_password
+        MYSQL_DATABASE: wordpress_db
+        MYSQL_USER: wordpress_user
+        MYSQL_PASSWORD: wordpress_password
+      volumes:
+        - db_data:/var/lib/mysql
+      networks:
+        - training_network
+
+    prometheus:
+      image: prom/prometheus
+      container_name: prometheus
+      command:
+        - '--config.file=/etc/prometheus/prometheus.yml'
+      ports:
+        - 9090:9090
+      restart: unless-stopped
+      volumes:
+        - ./prometheus:/etc/prometheus
+        - prom_data:/prometheus
+      networks:
+        - training_network
+
+    cadvisor:
+      image: gcr.io/cadvisor/cadvisor:latest
+      depends_on: 
+        - wordpress
+        - db
+      command:
+        - "--v=4"  # Niveau de log pour un diagnostic détaillé
+      container_name: cadvisor
+      ports:
+        - "8081:8080"  # Expose cAdvisor web UI
+      restart: unless-stopped
+      volumes:
+        - "/:/rootfs:ro"  # Mount the root filesystem
+        - "/var/run:/var/run:ro"  # Mount Docker socket
+        - "/sys:/sys:ro"  # Mount system information
+        - "/var/lib/docker/:/var/lib/docker/:ro"
+        - "/var/run/docker.sock:/var/run/docker.sock:ro"
+        - "/dev/disk/:/dev/disk:ro"
+      networks:
+        - training_network
+    grafana:
+      image: grafana/grafana
+      container_name: grafana
+      restart: unless-stopped
+      ports:
+      - '3000:3000'
+      volumes:
+        - grafana-storage:/var/lib/grafana
+      networks:
+        - training_network
+      
+volumes:
+  prom_data:
+  wordpress_data:
+  db_data: {}
+  grafana-storage:
+
+networks:
+  training_network:
+    driver: bridge
